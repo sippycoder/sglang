@@ -242,6 +242,15 @@ class ComponentLoader(ABC):
         ):
             transformers_or_diffusers = "diffusers"
 
+        # Custom pipeline modules (e.g., "modeling_nucleusmoe") that provide
+        # their own transformer class should be treated as diffusers-style
+        # components for the purpose of native SGLang weight loading.
+        if (
+            component_name == "transformer"
+            and transformers_or_diffusers not in ("diffusers", "transformers")
+        ):
+            transformers_or_diffusers = "diffusers"
+
         if component_name in component_name_to_loader_cls:
             loader_cls: Type[ComponentLoader] = component_name_to_loader_cls[
                 component_name

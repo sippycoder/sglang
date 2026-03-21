@@ -48,6 +48,9 @@ from sglang.multimodal_gen.configs.pipeline_configs.flux import (
 from sglang.multimodal_gen.configs.pipeline_configs.glm_image import (
     GlmImagePipelineConfig,
 )
+from sglang.multimodal_gen.configs.pipeline_configs.nucleusmoe_image import (
+    NucleusMoEImagePipelineConfig,
+)
 from sglang.multimodal_gen.configs.pipeline_configs.hunyuan3d import (
     Hunyuan3D2PipelineConfig,
 )
@@ -93,6 +96,7 @@ from sglang.multimodal_gen.configs.sample.mova import (
     MOVA_360P_SamplingParams,
     MOVA_720P_SamplingParams,
 )
+from sglang.multimodal_gen.configs.sample.nucleusmoe import NucleusMoESamplingParams
 from sglang.multimodal_gen.configs.sample.qwenimage import (
     QwenImage2512SamplingParams,
     QwenImageEditPlusSamplingParams,
@@ -302,7 +306,10 @@ def _get_config_info(
     else:
         config = maybe_download_model_index(model_path)
 
-    pipeline_name = config.get("_class_name", "").lower()
+    raw_class_name = config.get("_class_name", "")
+    if isinstance(raw_class_name, list):
+        raw_class_name = raw_class_name[-1] if raw_class_name else ""
+    pipeline_name = raw_class_name.lower()
 
     matched_model_names = []
     for model_id, detector in _MODEL_NAME_DETECTORS:
@@ -467,6 +474,9 @@ def get_model_info(
             return None
 
         pipeline_class_name = config.get("_class_name")
+        # Handle custom pipeline format where _class_name is [module, class]
+        if isinstance(pipeline_class_name, list):
+            pipeline_class_name = pipeline_class_name[-1]
         if not pipeline_class_name:
             logger.error(
                 f"'_class_name' not found in model_index.json for '{model_path}'"
@@ -762,6 +772,17 @@ def _register_configs():
         sampling_param_cls=GlmImageSamplingParams,
         pipeline_config_cls=GlmImagePipelineConfig,
         model_detectors=[lambda hf_id: "glm-image" in hf_id.lower()],
+    )
+
+    # NucleusMoE-Image
+    register_configs(
+        sampling_param_cls=NucleusMoESamplingParams,
+        pipeline_config_cls=NucleusMoEImagePipelineConfig,
+        hf_model_paths=["NucleusAI/NucleusMoE-Image"],
+        model_detectors=[
+            lambda hf_id: "nucleusmoe" in hf_id.lower()
+            and "image" in hf_id.lower()
+        ],
     )
     register_configs(
         sampling_param_cls=Hunyuan3DSamplingParams,

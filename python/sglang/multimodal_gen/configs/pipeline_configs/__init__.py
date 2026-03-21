@@ -37,6 +37,9 @@ from sglang.multimodal_gen.configs.pipeline_configs.wan import (
     WanT2V480PConfig,
     WanT2V720PConfig,
 )
+from sglang.multimodal_gen.configs.pipeline_configs.nucleusmoe_image import (
+    NucleusMoEImagePipelineConfig,
+)
 from sglang.multimodal_gen.configs.pipeline_configs.zimage import ZImagePipelineConfig
 
 __all__ = [
@@ -60,6 +63,7 @@ __all__ = [
     "WanT2V720PConfig",
     "WanI2V720PConfig",
     "SelfForcingWanT2V480PConfig",
+    "NucleusMoEImagePipelineConfig",
     "ZImagePipelineConfig",
     "LTX2PipelineConfig",
 ]
